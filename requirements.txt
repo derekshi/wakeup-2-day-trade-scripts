@@ -1,0 +1,5 @@
+# prefetch.py and snapshot.py use only the Python standard library.
+# chart.py (candlestick chart) and scorecard.py (summary card) need:
+matplotlib
+mplfinance
+pandas
