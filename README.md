@@ -18,6 +18,7 @@ The bot downloads these files from a pinned release tag into
 | `snapshot.py` | Builds the ready-to-send Stage-1 "first look" message from `summary.json`: price, move, extended hours, volume, float, shares, market cap, short interest, latest filing and headline, each with its source. The last line is `CHART: <png>` or `CHART: none`. `--spike` prints the biggest 5-minute moves for timing checks. | stdlib only |
 | `chart.py` | Draws a daily candlestick chart (~6 months, volume, MA9/MA20, log scale for big spikes) from StockAnalysis.com history, falling back to Yahoo. Default output: `/workspace/runner-charts/<TICKER>-<date>.png`. | matplotlib, mplfinance, pandas |
 | `scorecard.py` | Renders a mobile-first summary card PNG (dilution risk, catalyst, cash runway tiles plus key stats) from a `card.json` written after the analysis. Default output: `/workspace/runner-charts/<TICKER>-card-<date>.png`. | matplotlib |
+| `price_range.py` | Renders a mobile-first speculative price-range PNG (Bear/Base/Bull bar + scenario cards, optional momentum band) from a `price_range.json` written after the valuation. Default output: `/workspace/runner-charts/<TICKER>-range-<date>.png`. | matplotlib |
 
 Usage:
 
@@ -26,13 +27,14 @@ python3 prefetch.py TICKER [--no-chart] [--no-docs]   # prints summary.json path
 python3 snapshot.py <summary.json | TICKER> [--spike]
 python3 chart.py TICKER [out.png] [--bars daily_bars.json] [--source sa|yahoo]
 python3 scorecard.py --json card.json [out.png]
+python3 price_range.py --json price_range.json [out.png]
 ```
 
 ## Requirements
 
 - Python 3.9+ (uses `zoneinfo`).
 - `pip install -r requirements.txt` (matplotlib, mplfinance, pandas). These are
-  needed only for `chart.py` and `scorecard.py`. If `mplfinance` is missing,
+  needed only for `chart.py`, `scorecard.py` and `price_range.py`. If `mplfinance` is missing,
   `chart.py` tries to pip-install it.
 - Outbound HTTPS to sec.gov, stockanalysis.com, finviz.com, api.nasdaq.com,
   api.finra.org and Yahoo Finance.
@@ -53,13 +55,13 @@ or block generic agents.
 ## How the bot uses them
 
 1. On first run, or if a file is missing or its hash is wrong, the bot downloads
-   the four scripts from
-   `https://raw.githubusercontent.com/derekshi/wakeup-2-day-trade-scripts/v1.0.0/<file>`
+   the scripts from
+   `https://raw.githubusercontent.com/derekshi/wakeup-2-day-trade-scripts/v1.1.0/<file>`
    into `/workspace/runner-watch/` and checks each SHA-256.
 2. For `Analyze $TICKER`, it runs `prefetch.py`, then sends the `snapshot.py`
    output and the chart as a first look within seconds.
-3. It writes a short Quick Read, researches the full report, writes `card.json`,
-   renders `scorecard.py`, and sends the report.
+3. It writes a short Quick Read, researches the full report, writes `card.json` and
+   `price_range.json`, renders `scorecard.py` and `price_range.py`, and sends the report.
 
 Caches are stored under `/workspace/runner-cache/` and images under
 `/workspace/runner-charts/`.
